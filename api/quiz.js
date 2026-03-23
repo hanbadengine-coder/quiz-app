@@ -15,7 +15,7 @@ export default async function handler(req, res) {
   try {
     // 💡 수정된 부분: 깨진 URL을 정상화하고 모델명을 정확히 기입했습니다.
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-latest:generateContent?key=${key}`,
+      `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${key}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
