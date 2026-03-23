@@ -495,25 +495,24 @@ function genQuiz(){
   });
   content.push({type:'text',text:prompt});
 
-  fetch('https://api.anthropic.com/v1/messages',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:4000,messages:[{role:'user',content:content}]})
-  })
-  .then(function(r){return r.json()})
-  .then(function(data){
-    clearInterval(iv);Q('ldP').style.width='100%';
-    if(data.error)throw new Error(data.error.message||'API 오류');
-    var txt=(data.content||[]).filter(function(b){return b.type==='text'}).map(function(b){return b.text}).join('');
-    var m=txt.match(/\{[\s\S]*\}/);
-    if(!m)throw new Error('JSON을 찾을 수 없습니다.');
-    var parsed=JSON.parse(m[0]);
-    if(!parsed.questions||!parsed.questions.length)throw new Error('문항 데이터가 없습니다.');
-    parsed.questions=parsed.questions.map(function(q){var a=parseInt(q.answer);if(isNaN(a)||a<1||a>q.options.length){q._warn=true;q.answer=1}return q});
-    RAW=parsed;QS=parsed.questions;TOT=QS.length;ANS={};
-    setTimeout(function(){hide('pL');renderQuiz(fld,useEx,useJs)},300);
-  })
-  .catch(function(e){clearInterval(iv);hide('pL');show('pS');showErr('오류: '+e.message)});
+  fetch('/api/quiz', {
+  method: 'POST',
+  headers: {'Content-Type': 'application/json'},
+  body: JSON.stringify({messages: messages})
+})
+.then(function(r){ return r.json() })
+.then(function(data){
+  clearInterval(iv); Q('ldP').style.width='100%';
+  if(data.error) throw new Error(data.error);
+  var m=(data.text||'').match(/\{[\s\S]*\}/);
+  if(!m) throw new Error('JSON을 찾을 수 없습니다.');
+  var parsed=JSON.parse(m[0]);
+  if(!parsed.questions||!parsed.questions.length) throw new Error('문항 데이터가 없습니다.');
+  parsed.questions=parsed.questions.map(function(q){var a=parseInt(q.answer);if(isNaN(a)||a<1||a>q.options.length){q._warn=true;q.answer=1}return q});
+  RAW=parsed; QS=parsed.questions; TOT=QS.length; ANS={};
+  setTimeout(function(){hide('pL');renderQuiz(fld,useEx,useJs)},300);
+})
+.catch(function(e){ clearInterval(iv); hide('pL'); show('pS'); showErr('오류: '+e.message) });
 }
 
 // ── 렌더 ──
